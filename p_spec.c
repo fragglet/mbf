@@ -807,7 +807,11 @@ boolean P_CanUnlockGenDoor(line_t *line, player_t *player)
       if (skulliscard &&
           (!(player->cards[it_redcard] | player->cards[it_redskull]) ||
            !(player->cards[it_bluecard] | player->cards[it_blueskull]) ||
-           !(player->cards[it_yellowcard] | !player->cards[it_yellowskull])))
+           !(player->cards[it_yellowcard] | player->cards[it_yellowskull])))
+
+	// fraggle 22/8/2000: bug with all3 doors: an extra ! operator
+	// where it shouldnt be (before player->cards[it_yellowskull])
+		
         {
           player->message = s_PD_ALL3; // Ty 03/27/98 - externalized
           S_StartSound(player->mo,sfx_oof);             // killough 3/20/98
@@ -3120,7 +3124,10 @@ static void P_SpawnPushers(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.2  2000-08-12 21:29:29  fraggle
+// Revision 1.3  2000-08-22 20:09:17  fraggle
+// bug with 3key doors!
+//
+// Revision 1.2  2000/08/12 21:29:29  fraggle
 // change license header
 //
 // Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
