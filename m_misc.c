@@ -1885,11 +1885,13 @@ void M_LoadDefaults (void)
   // check for a custom default file
 
   if (!defaultfile)
-    if ((i = M_CheckParm("-config")) && i < myargc-1)
-      printf(" default file: %s\n", defaultfile = strdup(myargv[i+1]));
-    else
-      defaultfile = strdup(basedefault);
-
+    {
+      if ((i = M_CheckParm("-config")) && i < myargc-1)
+	printf(" default file: %s\n", defaultfile = strdup(myargv[i+1]));
+      else
+	defaultfile = strdup(basedefault);
+    }
+  
   NormalizeSlashes(defaultfile);
 
   // read the file in, overriding any set defaults
@@ -2324,8 +2326,11 @@ void M_ScreenShot (void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.60  1998/06/03  20:32:12  jim
 // Fixed mispelling of key_chat string

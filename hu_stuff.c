@@ -1438,31 +1438,34 @@ boolean HU_Responder(event_t *ev)
       else // killough 10/02/98: no chat if demo playback
         if (!demoplayback)
           if (!message_list)
-	    if (netgame && ev->data1 == key_chat)
-	      {
-		eatkey = chat_on = true;
-		HUlib_resetIText(&w_chat);
-		HU_queueChatChar(HU_BROADCAST);
-	      }//jff 2/26/98
-	    else    // killough 11/98: simplify
-	      if (!message_list && netgame && numplayers > 2)
+	    {
+	      if (netgame && ev->data1 == key_chat)
+		{
+		  eatkey = chat_on = true;
+		  HUlib_resetIText(&w_chat);
+		  HU_queueChatChar(HU_BROADCAST);
+		}//jff 2/26/98
+	      // killough 11/98: simplify
+	      else if (!message_list && netgame && numplayers > 2)
 		for (i=0; i<MAXPLAYERS ; i++)
 		  if (ev->data1 == destination_keys[i])
-		    if (i == consoleplayer)
-		      plr->message = 
-			++num_nobrainers <  3 ? HUSTR_TALKTOSELF1 :
-	                  num_nobrainers <  6 ? HUSTR_TALKTOSELF2 :
-	                  num_nobrainers <  9 ? HUSTR_TALKTOSELF3 :
-	                  num_nobrainers < 32 ? HUSTR_TALKTOSELF4 :
-                                                HUSTR_TALKTOSELF5 ;
-                  else
-                    if (playeringame[i])
-                      {
-                        eatkey = chat_on = true;
-                        HUlib_resetIText(&w_chat);
-                        HU_queueChatChar(i+1);
-                        break;
-                      }
+		    {
+		      if (i == consoleplayer)
+			plr->message = 
+			  ++num_nobrainers <  3 ? HUSTR_TALKTOSELF1 :
+			num_nobrainers <  6 ? HUSTR_TALKTOSELF2 :
+			num_nobrainers <  9 ? HUSTR_TALKTOSELF3 :
+			num_nobrainers < 32 ? HUSTR_TALKTOSELF4 :
+			HUSTR_TALKTOSELF5 ;
+		      else if(playeringame[i])
+			{
+			  eatkey = chat_on = true;
+			  HUlib_resetIText(&w_chat);
+			  HU_queueChatChar(i+1);
+			  break;
+			}
+		    }
+	    }
     }//jff 2/26/98 no chat functions if message review is displayed
   else
     if (!message_list)
@@ -1520,8 +1523,11 @@ boolean HU_Responder(event_t *ev)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.27  1998/05/10  19:03:41  jim
 // formatted/documented hu_stuff

@@ -131,11 +131,13 @@ void STlib_drawNum
   //jff 2/16/98 add color translation to digit output
   // in the special case of 0, you draw 0
   if (!num)
-    if (outrng && !sts_always_red)
-      V_DrawPatchTranslated(x - w, n->y, FG, n->p[ 0 ],outrng,0);
-    else //jff 2/18/98 allow use of faster draw routine from config
-      V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
-
+    {
+      if (outrng && !sts_always_red)
+	V_DrawPatchTranslated(x - w, n->y, FG, n->p[ 0 ],outrng,0);
+      else //jff 2/18/98 allow use of faster draw routine from config
+	V_DrawPatch(x - w, n->y, FG, n->p[ 0 ]);
+    }
+  
   // draw the new number
   //jff 2/16/98 add color translation to digit output
   while (num && numdigits--)
@@ -151,10 +153,12 @@ void STlib_drawNum
   // draw a minus sign if necessary
   //jff 2/16/98 add color translation to digit output
   if (neg)
-    if (outrng && !sts_always_red)
-      V_DrawPatchTranslated(x - 8, n->y, FG, sttminus,outrng,0);
-    else //jff 2/18/98 allow use of faster draw routine from config
-      V_DrawPatch(x - 8, n->y, FG, sttminus);
+    {
+      if (outrng && !sts_always_red)
+	V_DrawPatchTranslated(x - 8, n->y, FG, sttminus,outrng,0);
+      else //jff 2/18/98 allow use of faster draw routine from config
+	V_DrawPatch(x - 8, n->y, FG, sttminus);
+    }
 }
 
 //
@@ -210,18 +214,20 @@ void STlib_updatePercent
   int refresh )
 {
   if (refresh || *per->n.on) // killough 2/21/98: fix percents not updated;
-    if (!sts_always_red)     // also support gray-only percents
-      V_DrawPatchTranslated
-      (
-        per->n.x,
-        per->n.y,
-        FG,
-        per->p,
-        sts_pct_always_gray ? cr_gray : outrng,
-        0
-      );
-    else   //jff 2/18/98 allow use of faster draw routine from config
-      V_DrawPatch(per->n.x, per->n.y, FG, per->p);
+    {
+      if (!sts_always_red)     // also support gray-only percents
+	V_DrawPatchTranslated
+	  (
+	   per->n.x,
+	   per->n.y,
+	   FG,
+	   per->p,
+	   sts_pct_always_gray ? cr_gray : outrng,
+	   0
+	   );
+      else   //jff 2/18/98 allow use of faster draw routine from config
+	V_DrawPatch(per->n.x, per->n.y, FG, per->p);
+    }
   
   STlib_updateNum(&per->n, outrng, refresh);
 }
@@ -361,8 +367,11 @@ void STlib_updateBinIcon
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.8  1998/05/11  10:44:42  jim
 // formatted/documented st_lib

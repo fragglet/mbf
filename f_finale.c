@@ -225,23 +225,25 @@ void F_Ticker(void)
       if (finalecount > strlen(finaletext)*speed +  // phares
           (midstage ? NEWTEXTWAIT : TEXTWAIT) ||  // killough 2/28/98:
           (midstage && acceleratestage))       // changed to allow acceleration
-        if (gamemode != commercial)       // Doom 1 / Ultimate Doom episode end
-          {                               // with enough time, it's automatic
-            finalecount = 0;
-            finalestage = 1;
-            wipegamestate = -1;         // force a wipe
-            if (gameepisode == 3)
-              S_StartMusic(mus_bunny);
-          }
-        else   // you must press a button to continue in Doom 2
-          if (!demo_compatibility && midstage)
-            {
-            next_level:
-              if (gamemap == 30)
-                F_StartCast();              // cast of Doom 2 characters
-              else
-                gameaction = ga_worlddone;  // next level, e.g. MAP07
-            }
+	{
+	  if (gamemode != commercial)       // Doom 1 / Ultimate Doom episode end
+	    {                               // with enough time, it's automatic
+	      finalecount = 0;
+	      finalestage = 1;
+	      wipegamestate = -1;         // force a wipe
+	      if (gameepisode == 3)
+		S_StartMusic(mus_bunny);
+	    }
+	  else   // you must press a button to continue in Doom 2
+	    if (!demo_compatibility && midstage)
+	      {
+	      next_level:
+		if (gamemap == 30)
+		  F_StartCast();              // cast of Doom 2 characters
+		else
+		  gameaction = ga_worlddone;  // next level, e.g. MAP07
+	      }
+	}
     }
 }
 
@@ -724,8 +726,11 @@ void F_Drawer (void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.16  1998/05/10  23:39:25  killough
 // Restore v1.9 demo sync on text intermission screens

@@ -703,17 +703,21 @@ void R_StoreWallRange(const int start, const int stop)
 
   // render it
   if (markceiling)
-    if (ceilingplane)   // killough 4/11/98: add NULL ptr checks
-      ceilingplane = R_CheckPlane (ceilingplane, rw_x, rw_stopx-1);
-    else
-      markceiling = 0;
-
+    {
+      if (ceilingplane)   // killough 4/11/98: add NULL ptr checks
+	ceilingplane = R_CheckPlane (ceilingplane, rw_x, rw_stopx-1);
+      else
+	markceiling = 0;
+    }
+  
   if (markfloor)
-    if (floorplane)     // killough 4/11/98: add NULL ptr checks
-      floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
-    else
-      markfloor = 0;
-
+    {
+      if (floorplane)     // killough 4/11/98: add NULL ptr checks
+	floorplane = R_CheckPlane (floorplane, rw_x, rw_stopx-1);
+      else
+	markfloor = 0;
+    }
+  
   R_RenderSegLoop();
 
   // save sprite clipping info
@@ -745,8 +749,11 @@ void R_StoreWallRange(const int start, const int stop)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.16  1998/05/03  23:02:01  killough
 // Move R_PointToDist from r_main.c, fix #includes

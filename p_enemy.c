@@ -642,45 +642,47 @@ static void P_NewChaseDir(mobj_t *actor)
   actor->strafecount = 0;
 
   if (demo_version >= 203)
-    if (actor->floorz - actor->dropoffz > FRACUNIT*24 &&
-	actor->z <= actor->floorz && !(actor->flags & (MF_DROPOFF|MF_FLOAT)) &&
-	!comp[comp_dropoff] && P_AvoidDropoff(actor)) // Move away from dropoff
-      {
-	P_DoNewChaseDir(actor, dropoff_deltax, dropoff_deltay);
-
-	// If moving away from dropoff, set movecount to 1 so that 
-	// small steps are taken to get monster away from dropoff.
-
-	actor->movecount = 1;
-	return;
-      }
-    else
-      {
-	fixed_t dist = P_AproxDistance(deltax, deltay);
-
-	// Move away from friends when too close, except
-	// in certain situations (e.g. a crowded lift)
-
-	if (actor->flags & target->flags & MF_FRIEND &&
-	    distfriend << FRACBITS > dist && 
-	    !P_IsOnLift(target) && !P_IsUnderDamage(actor))
-	  deltax = -deltax, deltay = -deltay;
-	else
-	  if (target->health > 0 && (actor->flags ^ target->flags) & MF_FRIEND)
-	    {   // Live enemy target
-	      if (monster_backing &&
-		  actor->info->missilestate && actor->type != MT_SKULL &&
-		  ((!target->info->missilestate && dist < MELEERANGE*2) ||
-		   (target->player && dist < MELEERANGE*3 &&
-		    (target->player->readyweapon == wp_fist ||
-		     target->player->readyweapon == wp_chainsaw))))
-		{       // Back away from melee attacker
-		  actor->strafecount = P_Random(pr_enemystrafe) & 15;
-		  deltax = -deltax, deltay = -deltay;
-		}
-	    }
-      }
-
+    {
+      if (actor->floorz - actor->dropoffz > FRACUNIT*24 &&
+	  actor->z <= actor->floorz && !(actor->flags & (MF_DROPOFF|MF_FLOAT)) &&
+	  !comp[comp_dropoff] && P_AvoidDropoff(actor)) // Move away from dropoff
+	{
+	  P_DoNewChaseDir(actor, dropoff_deltax, dropoff_deltay);
+	  
+	  // If moving away from dropoff, set movecount to 1 so that 
+	  // small steps are taken to get monster away from dropoff.
+	  
+	  actor->movecount = 1;
+	  return;
+	}
+      else
+	{
+	  fixed_t dist = P_AproxDistance(deltax, deltay);
+	  
+	  // Move away from friends when too close, except
+	  // in certain situations (e.g. a crowded lift)
+	  
+	  if (actor->flags & target->flags & MF_FRIEND &&
+	      distfriend << FRACBITS > dist && 
+	      !P_IsOnLift(target) && !P_IsUnderDamage(actor))
+	    deltax = -deltax, deltay = -deltay;
+	  else
+	    if (target->health > 0 && (actor->flags ^ target->flags) & MF_FRIEND)
+	      {   // Live enemy target
+		if (monster_backing &&
+		    actor->info->missilestate && actor->type != MT_SKULL &&
+		    ((!target->info->missilestate && dist < MELEERANGE*2) ||
+		     (target->player && dist < MELEERANGE*3 &&
+		      (target->player->readyweapon == wp_fist ||
+		       target->player->readyweapon == wp_chainsaw))))
+		  {       // Back away from melee attacker
+		    actor->strafecount = P_Random(pr_enemystrafe) & 15;
+		    deltax = -deltax, deltay = -deltay;
+		  }
+	      }
+	}
+    }
+      
   P_DoNewChaseDir(actor, deltax, deltay);
 
   // If strafing, set movecount to strafecount so that old Doom
@@ -1062,11 +1064,13 @@ void A_Chase(mobj_t *actor)
 
   // modify target threshold
   if (actor->threshold)
-    if (!actor->target || actor->target->health <= 0)
-      actor->threshold = 0;
-    else
-      actor->threshold--;
-
+    {
+      if (!actor->target || actor->target->health <= 0)
+	actor->threshold = 0;
+      else
+	actor->threshold--;
+    }
+  
   // turn towards movement direction if not there yet
   // killough 9/7/98: keep facing towards target if strafing or backing out
 
@@ -1113,52 +1117,57 @@ void A_Chase(mobj_t *actor)
   // check for missile attack
   if (actor->info->missilestate)
     if (!actor->movecount || gameskill >= sk_nightmare || fastparm)
-      if (P_CheckMissileRange(actor))
-        {
-          P_SetMobjState(actor, actor->info->missilestate);
-          actor->flags |= MF_JUSTATTACKED;
-          return;
-        }
-
-  if (!actor->threshold)
-    if (demo_version < 203)
-      {   // killough 9/9/98: for backward demo compatibility
-	if (netgame && !P_CheckSight(actor, actor->target) &&
-	    P_LookForPlayers(actor, true))
-	  return;  
-      }
-    else  // killough 7/18/98, 9/9/98: new monster AI
-      if (help_friends && P_HelpFriend(actor))
-	return;      // killough 9/8/98: Help friends in need
-      else  // Look for new targets if current one is bad or is out of view
-	if (actor->pursuecount)
-	  actor->pursuecount--;
-	else
+      {
+	if (P_CheckMissileRange(actor))
 	  {
-	    actor->pursuecount = BASETHRESHOLD;
-	    
-	    // If current target is bad and a new one is found, return:
-
-	    if (!(actor->target && actor->target->health > 0 &&
-		  ((comp[comp_pursuit] && !netgame) || 
-		   (((actor->target->flags ^ actor->flags) & MF_FRIEND ||
-		     (!(actor->flags & MF_FRIEND) && monster_infighting)) &&
-		    P_CheckSight(actor, actor->target)))) &&
-		P_LookForTargets(actor, true))
-	      return;
-	    
-	    // (Current target was good, or no new target was found.)
-	    //
-	    // If monster is a missile-less friend, give up pursuit and
-	    // return to player, if no attacks have occurred recently.
-
-	    if (!actor->info->missilestate && actor->flags & MF_FRIEND)
-	      if (actor->flags & MF_JUSTHIT)        // if recent action,
-		actor->flags &= ~MF_JUSTHIT;        // keep fighting
-	      else
-		if (P_LookForPlayers(actor, true))  // else return to player
-		  return;
+	    P_SetMobjState(actor, actor->info->missilestate);
+	    actor->flags |= MF_JUSTATTACKED;
+	    return;
 	  }
+      }
+  
+  if (!actor->threshold)
+    {
+      if (demo_version < 203)
+	{   // killough 9/9/98: for backward demo compatibility
+	  if (netgame && !P_CheckSight(actor, actor->target) &&
+	      P_LookForPlayers(actor, true))
+	    return;  
+	}
+      else  // killough 7/18/98, 9/9/98: new monster AI
+	if (help_friends && P_HelpFriend(actor))
+	  return;      // killough 9/8/98: Help friends in need
+	else  // Look for new targets if current one is bad or is out of view
+	  if (actor->pursuecount)
+	    actor->pursuecount--;
+	  else
+	    {
+	      actor->pursuecount = BASETHRESHOLD;
+	      
+	      // If current target is bad and a new one is found, return:
+	      
+	      if (!(actor->target && actor->target->health > 0 &&
+		    ((comp[comp_pursuit] && !netgame) || 
+		     (((actor->target->flags ^ actor->flags) & MF_FRIEND ||
+		       (!(actor->flags & MF_FRIEND) && monster_infighting)) &&
+		      P_CheckSight(actor, actor->target)))) &&
+		  P_LookForTargets(actor, true))
+		return;
+	      
+	      // (Current target was good, or no new target was found.)
+	      //
+	      // If monster is a missile-less friend, give up pursuit and
+	      // return to player, if no attacks have occurred recently.
+	      
+	      if (!actor->info->missilestate && actor->flags & MF_FRIEND)
+		{
+		  if (actor->flags & MF_JUSTHIT)        // if recent action,
+		    actor->flags &= ~MF_JUSTHIT;        // keep fighting
+		  else if (P_LookForPlayers(actor, true))  // else return to player
+		    return;
+		}
+	    }
+    }
   
   if (actor->strafecount)
     actor->strafecount--;
@@ -1260,11 +1269,13 @@ void A_CPosRefire(mobj_t *actor)
 
   // killough 11/98: prevent refiring on friends continuously
   if (P_Random(pr_cposrefire) < 40)
-    if (actor->target && actor->flags & actor->target->flags & MF_FRIEND)
-      goto stop;
-    else
-      return;
-
+    {
+      if (actor->target && actor->flags & actor->target->flags & MF_FRIEND)
+	goto stop;
+      else
+	return;
+    }
+  
   if (!actor->target || actor->target->health <= 0
       || !P_CheckSight(actor, actor->target))
     stop: P_SetMobjState(actor, actor->info->seestate);
@@ -1436,19 +1447,21 @@ void A_Tracer(mobj_t *actor)
   exact = R_PointToAngle2(actor->x, actor->y, dest->x, dest->y);
 
   if (exact != actor->angle)
-    if (exact - actor->angle > 0x80000000)
-      {
-        actor->angle -= TRACEANGLE;
-        if (exact - actor->angle < 0x80000000)
-          actor->angle = exact;
-      }
-    else
-      {
-        actor->angle += TRACEANGLE;
-        if (exact - actor->angle > 0x80000000)
-          actor->angle = exact;
-      }
-
+    {
+      if (exact - actor->angle > 0x80000000)
+	{
+	  actor->angle -= TRACEANGLE;
+	  if (exact - actor->angle < 0x80000000)
+	    actor->angle = exact;
+	}
+      else
+	{
+	  actor->angle += TRACEANGLE;
+	  if (exact - actor->angle > 0x80000000)
+	    actor->angle = exact;
+	}
+    }
+  
   exact = actor->angle>>ANGLETOFINESHIFT;
   actor->momx = FixedMul(actor->info->speed, finecosine[exact]);
   actor->momy = FixedMul(actor->info->speed, finesine[exact]);
@@ -2560,8 +2573,11 @@ void A_LineEffect(mobj_t *mo)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.22  1998/05/12  12:47:10  phares
 // Removed OVER_UNDER code

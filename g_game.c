@@ -1513,11 +1513,13 @@ void G_Ticker(void)
 	  {
 	    // killough 9/29/98: allow multiple special buttons
 	    if (players[i].cmd.buttons & BTS_PAUSE)
-	      if ((paused ^= 1))
-		S_PauseSound();
-	      else
-		S_ResumeSound();
-	
+	      {
+		if ((paused ^= 1))
+		  S_PauseSound();
+		else
+		  S_ResumeSound();
+	      }
+	    
 	    if (players[i].cmd.buttons & BTS_SAVEGAME)
 	      {
 		if (!savedescription[0])
@@ -1914,23 +1916,25 @@ void G_SetFastParms(int fast_pending)
   int i;
 
   if (fast != fast_pending)       // only change if necessary
-    if ((fast = fast_pending))
-      {
-        for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
-          if (states[i].tics != 1 || demo_compatibility) // killough 4/10/98
-            states[i].tics >>= 1;  // don't change 1->0 since it causes cycles
-        mobjinfo[MT_BRUISERSHOT].speed = 20*FRACUNIT;
-        mobjinfo[MT_HEADSHOT].speed = 20*FRACUNIT;
-        mobjinfo[MT_TROOPSHOT].speed = 20*FRACUNIT;
-      }
-    else
-      {
-        for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
-          states[i].tics <<= 1;
-        mobjinfo[MT_BRUISERSHOT].speed = 15*FRACUNIT;
-        mobjinfo[MT_HEADSHOT].speed = 10*FRACUNIT;
-        mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT;
-      }
+    {
+      if ((fast = fast_pending))
+	{
+	  for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
+	    if (states[i].tics != 1 || demo_compatibility) // killough 4/10/98
+	      states[i].tics >>= 1;  // don't change 1->0 since it causes cycles
+	  mobjinfo[MT_BRUISERSHOT].speed = 20*FRACUNIT;
+	  mobjinfo[MT_HEADSHOT].speed = 20*FRACUNIT;
+	  mobjinfo[MT_TROOPSHOT].speed = 20*FRACUNIT;
+	}
+      else
+	{
+	  for (i=S_SARG_RUN1; i<=S_SARG_PAIN2; i++)
+	    states[i].tics <<= 1;
+	  mobjinfo[MT_BRUISERSHOT].speed = 15*FRACUNIT;
+	  mobjinfo[MT_HEADSHOT].speed = 10*FRACUNIT;
+	  mobjinfo[MT_TROOPSHOT].speed = 10*FRACUNIT;
+	}
+    }
 }
 
 // The sky texture to be used instead of the F_SKY1 dummy.
@@ -2360,8 +2364,11 @@ void dprintf(const char *s, ...)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.59  1998/06/03  20:23:10  killough
 // fix v2.00 demos

@@ -364,12 +364,14 @@ void S_UpdateSounds(const mobj_t *listener)
               // or modify their params
 
               if (c->origin && listener != c->origin) // killough 3/20/98
-                if (!S_AdjustSoundParams(listener, c->origin,
-                                         &volume, &sep, &pitch))
-                  S_StopChannel(cnum);
-                else
-                  I_UpdateSoundParams(c->handle, volume, sep, pitch);
-            }
+		{
+		  if (!S_AdjustSoundParams(listener, c->origin,
+					   &volume, &sep, &pitch))
+		    S_StopChannel(cnum);
+		  else
+		    I_UpdateSoundParams(c->handle, volume, sep, pitch);
+		}
+	    }
           else   // if channel is allocated but sound has stopped, free it
             S_StopChannel(cnum);
         }
@@ -552,8 +554,11 @@ void S_Init(int sfxVolume, int musicVolume)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.11  1998/05/03  22:57:06  killough
 // beautification, #include fix

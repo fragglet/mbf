@@ -116,10 +116,12 @@ boolean P_GiveAmmo(player_t *player, ammotype_t ammo, int num)
     {
     case am_clip:
       if (player->readyweapon == wp_fist)
-        if (player->weaponowned[wp_chaingun])
-          player->pendingweapon = wp_chaingun;
-        else
-          player->pendingweapon = wp_pistol;
+	{
+	  if (player->weaponowned[wp_chaingun])
+	    player->pendingweapon = wp_chaingun;
+	  else
+	    player->pendingweapon = wp_pistol;
+	}
       break;
 
     case am_shell:
@@ -906,8 +908,11 @@ void P_DamageMobj(mobj_t *target,mobj_t *inflictor, mobj_t *source, int damage)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.10  1998/05/03  23:09:29  killough
 // beautification, fix #includes, move some global vars here

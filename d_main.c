@@ -752,38 +752,40 @@ char *FindIWADFile(void)
       {
         NormalizeSlashes(strcpy(iwad,p));
         if (WadFileStatus(iwad,&isdir))
-          if (!isdir)
-            {
-              if (!*customiwad)
-                return printf("Looking for %s\n",iwad), iwad; // killough 8/8/98
-              else
-                if ((p = strrchr(iwad,'/')))
-                  {
-                    *p=0;
-                    strcat(iwad,customiwad);
-                    printf("Looking for %s\n",iwad);  // killough 8/8/98
-                    if (WadFileStatus(iwad,&isdir) && !isdir)
-                      return iwad;
-                  }
-            }
-          else
-            {
-              printf("Looking in %s\n",iwad);  // killough 8/8/98
-              if (*customiwad)
-                {
-                  if (WadFileStatus(strcat(iwad,customiwad),&isdir) && !isdir)
-                    return iwad;
-                }
-              else
-                for (i=0;i<nstandard_iwads;i++)
-                  {
-                    int n = strlen(iwad);
-                    strcat(iwad,standard_iwads[i]);
-                    if (WadFileStatus(iwad,&isdir) && !isdir)
-                      return iwad;
-                    iwad[n] = 0; // reset iwad length to former
-                  }
-            }
+	  {
+	    if (!isdir)
+	      {
+		if (!*customiwad)
+		  return printf("Looking for %s\n",iwad), iwad; // killough 8/8/98
+		else
+		  if ((p = strrchr(iwad,'/')))
+		    {
+		      *p=0;
+		      strcat(iwad,customiwad);
+		      printf("Looking for %s\n",iwad);  // killough 8/8/98
+		      if (WadFileStatus(iwad,&isdir) && !isdir)
+			return iwad;
+		    }
+	      }
+	    else
+	      {
+		printf("Looking in %s\n",iwad);  // killough 8/8/98
+		if (*customiwad)
+		  {
+		    if (WadFileStatus(strcat(iwad,customiwad),&isdir) && !isdir)
+		      return iwad;
+		  }
+		else
+		  for (i=0;i<nstandard_iwads;i++)
+		    {
+		      int n = strlen(iwad);
+		      strcat(iwad,standard_iwads[i]);
+		      if (WadFileStatus(iwad,&isdir) && !isdir)
+			return iwad;
+		      iwad[n] = 0; // reset iwad length to former
+		    }
+	      }
+	  }
       }
 
   *iwad = 0;
@@ -1285,19 +1287,22 @@ void D_DoomMain(void)
 
       boolean file = modifiedgame = true;            // homebrew levels
       while (++p < myargc)
-        if (*myargv[p] == '-')
-          file = !strcasecmp(myargv[p],"-file");
-        else
-          if (file)
-            D_AddFile(myargv[p]);
+	{
+	  if (*myargv[p] == '-')
+	    file = !strcasecmp(myargv[p],"-file");
+	  else if (file)
+	      D_AddFile(myargv[p]);
+	}
     }
 
   if (!(p = M_CheckParm("-playdemo")) || p >= myargc-1)    // killough
-    if ((p = M_CheckParm ("-fastdemo")) && p < myargc-1)   // killough
-      fastdemo = true;             // run at fastest speed possible
-    else
-      p = M_CheckParm ("-timedemo");
-
+    {
+      if ((p = M_CheckParm ("-fastdemo")) && p < myargc-1)   // killough
+	fastdemo = true;             // run at fastest speed possible
+      else
+	p = M_CheckParm ("-timedemo");
+    }
+  
   if (p && p < myargc-1)
     {
       strcpy(file,myargv[p+1]);
@@ -1337,19 +1342,21 @@ void D_DoomMain(void)
 
   if (((p = M_CheckParm ("-warp")) ||      // killough 5/2/98
        (p = M_CheckParm ("-wart"))) && p < myargc-1)
-    if (gamemode == commercial)
-      {
-        startmap = atoi(myargv[p+1]);
-        autostart = true;
-      }
-    else    // 1/25/98 killough: fix -warp xxx from crashing Doom 1 / UD
-      if (p < myargc-2)
-        {
-          startepisode = atoi(myargv[++p]);
-          startmap = atoi(myargv[p+1]);
-          autostart = true;
-        }
-
+    {
+      if (gamemode == commercial)
+	{
+	  startmap = atoi(myargv[p+1]);
+	  autostart = true;
+	}
+      else    // 1/25/98 killough: fix -warp xxx from crashing Doom 1 / UD
+	if (p < myargc-2)
+	  {
+	    startepisode = atoi(myargv[++p]);
+	    startmap = atoi(myargv[p+1]);
+	    autostart = true;
+	  }
+    }
+  
   //jff 1/22/98 add command line parms to disable sound and music
   {
     int nosound = M_CheckParm("-nosound");
@@ -1517,15 +1524,17 @@ void D_DoomMain(void)
     }
   else
     if (!singledemo)                    // killough 12/98
-      if (autostart || netgame)
-	{
-	  G_InitNew(startskill, startepisode, startmap);
-	  if (demorecording)
-	    G_BeginRecording();
-	}
-      else
-	D_StartTitle();                 // start up intro loop
-
+      {
+	if (autostart || netgame)
+	  {
+	    G_InitNew(startskill, startepisode, startmap);
+	    if (demorecording)
+	      G_BeginRecording();
+	  }
+	else
+	  D_StartTitle();                 // start up intro loop
+      }
+  
   // killough 12/98: inlined D_DoomLoop
 
   if (M_CheckParm ("-debugfile"))
@@ -1579,8 +1588,11 @@ void D_DoomMain(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.47  1998/05/16  09:16:51  killough
 // Make loadgame checksum friendlier

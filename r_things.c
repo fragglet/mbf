@@ -903,31 +903,34 @@ void R_DrawSprite (vissprite_t* spr)
       if ((mh = sectors[spr->heightsec].floorheight) > spr->gz &&
           (h = centeryfrac - FixedMul(mh-=viewz, spr->scale)) >= 0 &&
           (h >>= FRACBITS) < viewheight)
-        if (mh <= 0 || (phs != -1 && viewz > sectors[phs].floorheight))
-          {                          // clip bottom
-            for (x=spr->x1 ; x<=spr->x2 ; x++)
-              if (clipbot[x] == -2 || h < clipbot[x])
-                clipbot[x] = h;
-          }
-        else                        // clip top
-          if (phs != -1 && viewz <= sectors[phs].floorheight) // killough 11/98
-            for (x=spr->x1 ; x<=spr->x2 ; x++)
-              if (cliptop[x] == -2 || h > cliptop[x])
-                cliptop[x] = h;
-
+	{
+	  if (mh <= 0 || (phs != -1 && viewz > sectors[phs].floorheight))
+	    {                          // clip bottom
+	      for (x=spr->x1 ; x<=spr->x2 ; x++)
+		if (clipbot[x] == -2 || h < clipbot[x])
+		  clipbot[x] = h;
+	    }                        // clip top
+	  else if (phs != -1 && viewz <= sectors[phs].floorheight) // killough 11/98
+	    for (x=spr->x1 ; x<=spr->x2 ; x++)
+	      if (cliptop[x] == -2 || h > cliptop[x])
+		cliptop[x] = h;
+	}
+      
       if ((mh = sectors[spr->heightsec].ceilingheight) < spr->gzt &&
           (h = centeryfrac - FixedMul(mh-viewz, spr->scale)) >= 0 &&
           (h >>= FRACBITS) < viewheight)
-        if (phs != -1 && viewz >= sectors[phs].ceilingheight)
-          {                         // clip bottom
-            for (x=spr->x1 ; x<=spr->x2 ; x++)
-              if (clipbot[x] == -2 || h < clipbot[x])
-                clipbot[x] = h;
-          }
-        else                       // clip top
-          for (x=spr->x1 ; x<=spr->x2 ; x++)
-            if (cliptop[x] == -2 || h > cliptop[x])
-              cliptop[x] = h;
+	{
+	  if (phs != -1 && viewz >= sectors[phs].ceilingheight)
+	    {                         // clip bottom
+	      for (x=spr->x1 ; x<=spr->x2 ; x++)
+		if (clipbot[x] == -2 || h < clipbot[x])
+		  clipbot[x] = h;
+	    }
+	  else                       // clip top
+	    for (x=spr->x1 ; x<=spr->x2 ; x++)
+	      if (cliptop[x] == -2 || h > cliptop[x])
+		cliptop[x] = h;
+	}
     }
   // killough 3/27/98: end special clipping for deep water / fake ceilings
 
@@ -985,7 +988,10 @@ void R_DrawMasked(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.2  2000-07-29 13:48:25  fraggle
+// Revision 1.3  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.2  2000/07/29 13:48:25  fraggle
 // fix asm
 //
 // Revision 1.1.1.1  2000/07/29 13:20:41  fraggle

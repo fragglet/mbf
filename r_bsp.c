@@ -297,20 +297,22 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec,
           tempsec->floor_yoffs = s->floor_yoffs;
 
           if (underwater)
-            if (s->ceilingpic == skyflatnum)
-              {
-                tempsec->floorheight   = tempsec->ceilingheight+1;
-                tempsec->ceilingpic    = tempsec->floorpic;
-                tempsec->ceiling_xoffs = tempsec->floor_xoffs;
-                tempsec->ceiling_yoffs = tempsec->floor_yoffs;
-              }
-            else
-              {
-                tempsec->ceilingpic    = s->ceilingpic;
-                tempsec->ceiling_xoffs = s->ceiling_xoffs;
-                tempsec->ceiling_yoffs = s->ceiling_yoffs;
-              }
-
+	    {
+	      if (s->ceilingpic == skyflatnum)
+		{
+		  tempsec->floorheight   = tempsec->ceilingheight+1;
+		  tempsec->ceilingpic    = tempsec->floorpic;
+		  tempsec->ceiling_xoffs = tempsec->floor_xoffs;
+		  tempsec->ceiling_yoffs = tempsec->floor_yoffs;
+		}
+	      else
+		{
+		  tempsec->ceilingpic    = s->ceilingpic;
+		  tempsec->ceiling_xoffs = s->ceiling_xoffs;
+		  tempsec->ceiling_yoffs = s->ceiling_yoffs;
+		}
+	    }
+	  
           tempsec->lightlevel  = s->lightlevel;
 
           if (floorlightlevel)
@@ -695,8 +697,11 @@ void R_RenderBSPNode(int bspnum)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.17  1998/05/03  22:47:33  killough
 // beautification

@@ -485,30 +485,33 @@ static boolean PIT_CheckThing(mobj_t *thing) // killough 3/26/98: make static
 	  (tmthing->target->type == thing->type ||
 	   (tmthing->target->type == MT_KNIGHT && thing->type == MT_BRUISER)||
 	   (tmthing->target->type == MT_BRUISER && thing->type == MT_KNIGHT)))
-	if (thing == tmthing->target)
-	  return true;                // Don't hit same species as originator.
-	else
-	  if (thing->type != MT_PLAYER)	// Explode, but do no damage.
+	{
+	  if (thing == tmthing->target)
+	    return true;                // Don't hit same species as originator.
+	  else if (thing->type != MT_PLAYER)	// Explode, but do no damage.
 	    return false;	        // Let players missile other players.
+	}
       
       // killough 8/10/98: if moving thing is not a missile, no damage
       // is inflicted, and momentum is reduced if object hit is solid.
 
       if (!(tmthing->flags & MF_MISSILE))
-	if (!(thing->flags & MF_SOLID))
-	  return true;
-	else
-	  {
-	    tmthing->momx = -tmthing->momx;
-	    tmthing->momy = -tmthing->momy;
-	    if (!(tmthing->flags & MF_NOGRAVITY))
-	      {
-		tmthing->momx >>= 2;
-		tmthing->momy >>= 2;
+	{
+	  if (!(thing->flags & MF_SOLID))
+	    return true;
+	  else
+	    {
+	      tmthing->momx = -tmthing->momx;
+	      tmthing->momy = -tmthing->momy;
+	      if (!(tmthing->flags & MF_NOGRAVITY))
+		{
+		  tmthing->momx >>= 2;
+		  tmthing->momy >>= 2;
 	      }
-	    return false;
-	  }
-
+	      return false;
+	    }
+	}
+      
       if (!(thing->flags & MF_SHOOTABLE))
 	return !(thing->flags & MF_SOLID); // didn't do any damage
 
@@ -725,26 +728,28 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean dropoff)
       // killough 11/98: Improve symmetry of clipping on stairs
 
       if (!(thing->flags & (MF_DROPOFF|MF_FLOAT)))
-	if (comp[comp_dropoff])
-	  {
-	    if (tmfloorz - tmdropoffz > 24*FRACUNIT)
-	      return false;                      // don't stand over a dropoff
-	  }
-	else
-	  if (!dropoff || (dropoff==2 &&  // large jump down (e.g. dogs)
-			   (tmfloorz-tmdropoffz > 128*FRACUNIT || 
-			    !thing->target || thing->target->z >tmdropoffz)))
+	{
+	  if (comp[comp_dropoff])
 	    {
-	      if (!monkeys || demo_version < 203 ?
-		  tmfloorz - tmdropoffz > 24*FRACUNIT :
-		  thing->floorz  - tmfloorz > 24*FRACUNIT ||
-		  thing->dropoffz - tmdropoffz > 24*FRACUNIT)
-		return false;
+	      if (tmfloorz - tmdropoffz > 24*FRACUNIT)
+		return false;                      // don't stand over a dropoff
 	    }
-	  else  // dropoff allowed -- check for whether it fell more than 24
-	    felldown = !(thing->flags & MF_NOGRAVITY) &&
-	      thing->z - tmfloorz > 24*FRACUNIT;
-
+	  else
+	    if (!dropoff || (dropoff==2 &&  // large jump down (e.g. dogs)
+			     (tmfloorz-tmdropoffz > 128*FRACUNIT || 
+			      !thing->target || thing->target->z >tmdropoffz)))
+	      {
+		if (!monkeys || demo_version < 203 ?
+		    tmfloorz - tmdropoffz > 24*FRACUNIT :
+		    thing->floorz  - tmfloorz > 24*FRACUNIT ||
+		    thing->dropoffz - tmdropoffz > 24*FRACUNIT)
+		  return false;
+	      }
+	    else  // dropoff allowed -- check for whether it fell more than 24
+	      felldown = !(thing->flags & MF_NOGRAVITY) &&
+		thing->z - tmfloorz > 24*FRACUNIT;
+	}
+      
       if (thing->flags & MF_BOUNCES &&    // killough 8/13/98
 	  !(thing->flags & (MF_MISSILE|MF_NOGRAVITY)) &&
 	  !sentient(thing) && tmfloorz - thing->z > 16*FRACUNIT)
@@ -2048,8 +2053,11 @@ void P_CreateSecNodeList(mobj_t *thing,fixed_t x,fixed_t y)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.35  1998/05/12  12:47:16  phares
 // Removed OVER_UNDER code

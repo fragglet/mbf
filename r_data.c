@@ -373,17 +373,19 @@ static void R_GenerateLookup(int texnum, int *const errors)
     while (--x >= 0)
       {
 	if (!count[x].patches)     // killough 4/9/98
-	  if (devparm)
-	    {
-	      // killough 8/8/98
-	      printf("\nR_GenerateLookup:"
-		     " Column %d is without a patch in texture %.8s",
-		     x, texture->name);
-	      ++*errors;
-	    }
-	  else
-	    err = 1;               // killough 10/98
-
+	  {
+	    if (devparm)
+	      {
+		// killough 8/8/98
+		printf("\nR_GenerateLookup:"
+		       " Column %d is without a patch in texture %.8s",
+		       x, texture->name);
+		++*errors;
+	      }
+	    else
+	      err = 1;               // killough 10/98
+	  }
+	
         if (count[x].patches > 1)       // killough 4/9/98
           {
             // killough 1/25/98, 4/9/98:
@@ -819,11 +821,13 @@ void R_InitTranMap(int progress)
 		  putchar('.');
 
 		if (!(~i & 15))
-		  if (i & 32)       // killough 10/98: display flashing disk
-		    I_EndRead();
-		  else
-		    I_BeginRead();
-
+		  {
+		    if (i & 32)       // killough 10/98: display flashing disk
+		      I_EndRead();
+		    else
+		      I_BeginRead();
+		  }
+		
                 for (j=0;j<256;j++,tp++)
                   {
                     register int color = 255;
@@ -1017,8 +1021,11 @@ void R_PrecacheLevel(void)
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.23  1998/05/23  08:05:57  killough
 // Reformatting

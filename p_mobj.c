@@ -417,14 +417,16 @@ static void P_ZMovement (mobj_t* mo)
       mo->momz = 0;
 
       if (mo->flags & MF_MISSILE)
-	if (ceilingline &&
-	    ceilingline->backsector &&
-	    ceilingline->backsector->ceilingpic == skyflatnum &&
-	    mo->z > ceilingline->backsector->ceilingheight)
-	  P_RemoveMobj(mo);  // don't explode on skies
-	else
-	  P_ExplodeMissile(mo);
-
+	{
+	  if (ceilingline &&
+	      ceilingline->backsector &&
+	      ceilingline->backsector->ceilingpic == skyflatnum &&
+	      mo->z > ceilingline->backsector->ceilingheight)
+	    P_RemoveMobj(mo);  // don't explode on skies
+	  else
+	    P_ExplodeMissile(mo);
+	}
+      
       if (mo->flags & MF_FLOAT && sentient(mo))
 	goto floater;
       return;
@@ -1257,8 +1259,11 @@ void P_SpawnPlayerMissile(mobj_t* source,mobjtype_t type)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:24  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.26  1998/05/16  00:24:12  phares
 // Unknown things now flash warning msg instead of causing abort

@@ -611,8 +611,8 @@ char buf[3];
 
   if (w==wp_fist)           // make '1' apply beserker strength toggle
     cheat_pw(pw_strength);
-  else
-    if (w >= 0 && w < NUMWEAPONS)
+  else if (w >= 0 && w < NUMWEAPONS)
+    {
       if ((plyr->weaponowned[w] = !plyr->weaponowned[w]))
         plyr->message = "Weapon Added";  // Ty 03/27/98 - *not* externalized
       else 
@@ -622,6 +622,7 @@ char buf[3];
           if (w==plyr->readyweapon)         // maybe switch if weapon removed
             plyr->pendingweapon = P_SwitchWeapon(plyr);
         }
+    }
 }
 
 // killough 2/16/98: generalized ammo cheats
@@ -740,27 +741,33 @@ boolean M_FindCheats(int key)
         !(cheat[i].when & beta_only && !beta_emulation) &&
 #endif
         !(cheat[i].when & not_deh  && cheat[i].deh_modified))
-      if (cheat[i].arg < 0)               // if additional args are required
-        {
-          cht = i;                        // remember this cheat code
-          arg = argbuf;                   // point to start of arg buffer
-          argsleft = -cheat[i].arg;       // number of args expected
-          ret = 1;                        // responder has eaten key
-        }
-      else
-        if (!matchedbefore)               // allow only one cheat at a time 
-          {
-            matchedbefore = ret = 1;      // responder has eaten key
-            cheat[i].func(cheat[i].arg);  // call cheat handler
-          }
+      {
+	if (cheat[i].arg < 0)               // if additional args are required
+	  {
+	    cht = i;                        // remember this cheat code
+	    arg = argbuf;                   // point to start of arg buffer
+	    argsleft = -cheat[i].arg;       // number of args expected
+	    ret = 1;                        // responder has eaten key
+	  }
+	else
+	  if (!matchedbefore)               // allow only one cheat at a time 
+	    {
+	      matchedbefore = ret = 1;      // responder has eaten key
+	      cheat[i].func(cheat[i].arg);  // call cheat handler
+	    }
+      }
+  
   return ret;
 }
 
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 23:28:23  fraggle
+// fix ambiguous else warnings
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.7  1998/05/12  12:47:00  phares
 // Removed OVER_UNDER code
