@@ -740,11 +740,15 @@ void R_DrawPlayerSprites(void)
 // linked lists, and to use faster sorting algorithm.
 //
 
-#ifdef DJGPP
+// fraggle:
+// temporarily broken
+// i dont know asm so i cant fix it
+
+#if 0  /* #ifdef DJGPP*/
 
 // killough 9/22/98: inlined memcpy of pointer arrays
 
-#define bcopyp(d, s, n) asm(" cld; rep; movsl;" :: "D"(d), "S"(s), "c"(n) : "%cc", "%esi", "%edi", "%ecx")
+#define bcopyp(d, s, n) asm(" cld; rep; movsl;" :: "D"(d), "S"(s), "c"(n) : "%cc", "%esi", "%edi", "%ecx", "memory")
 
 #else
 
@@ -981,8 +985,11 @@ void R_DrawMasked(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 13:48:25  fraggle
+// fix asm
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.22  1998/05/03  22:46:41  killough
 // beautification

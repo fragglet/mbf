@@ -29,6 +29,12 @@
 
 #include "i_system.h"
 
+// fraggle 29/7/2000
+
+#ifndef INT_MAX
+#define INT_MAX MAXINT
+#endif
+
 //
 // Fixed point, 32bit as 16.16.
 //
@@ -55,18 +61,22 @@ typedef int fixed_t;
 
 #ifdef DJGPP
 
-// killough 5/10/98: In djgpp, use inlined assembly for performance
+// fraggle 29/7/2000: fix assembler
 
-__inline__ static fixed_t FixedMul(fixed_t a, fixed_t b)
+inline static const fixed_t FixedMul(fixed_t a, fixed_t b)
 {
   fixed_t result;
+  int dummy;
 
-  asm("  imull %2 ;"
-      "  shrdl $16,%%edx,%0 ;"
-      : "=a,=a" (result)           // eax is always the result
-      : "0,0" (a),                 // eax is also first operand
-        "m,r" (b)                  // second operand can be mem or reg
-      : "%edx", "%cc"              // edx and condition codes clobbered
+  asm("  imull %3 ;"
+      "  shrdl $16,%1,%0 ;"
+      : "=a" (result),          /* eax is always the result */
+        "=d" (dummy)		/* cphipps - fix compile problem with gcc-2.95.1
+				   edx is clobbered, but it might be an input */
+      : "0" (a),                /* eax is also first operand */
+        "r" (b)                 /* second operand could be mem or reg before,
+				   but gcc compile problems mean i can only us reg */
+      : "%cc"                   /* edx and condition codes clobbered */
       );
 
   return result;
@@ -89,22 +99,26 @@ __inline__ static fixed_t FixedMul(fixed_t a, fixed_t b)
 
 // killough 5/10/98: In djgpp, use inlined assembly for performance
 // killough 9/5/98: optimized to reduce the number of branches
+// fraggle 29/7/2000: fix assembler
 
-__inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
+inline static const fixed_t FixedDiv(fixed_t a, fixed_t b)
 {
   if (abs(a) >> 14 < abs(b))
     {
       fixed_t result;
-      asm(" idivl %3 ;"
-	  : "=a,=a" (result)
-	  : "0,0" (a<<16),
-	  "d,d" (a>>16),
-	  "m,r" (b)
-	  : "%edx", "%cc"
+      int dummy;
+      asm(" idivl %4 ;"
+	  : "=a" (result),
+	    "=d" (dummy)  /* cphipps - fix compile problems with gcc 2.95.1
+			     edx is clobbered, but also an input */
+	  : "0" (a<<16),
+	    "1" (a>>16),
+	    "r" (b)
+	  : "%cc"
 	  );
       return result;
     }
-  return ((a^b)>>31) ^ MAXINT;
+  return ((a^b)>>31) ^ INT_MAX;
 }
 
 #else // DJGPP
@@ -122,8 +136,11 @@ __inline__ static fixed_t FixedDiv(fixed_t a, fixed_t b)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 13:48:25  fraggle
+// fix asm
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.5  1998/05/10  23:42:22  killough
 // Add inline assembly for djgpp (x86) target
