@@ -349,8 +349,10 @@ void R_DrawFuzzColumn(void)
       // killough 3/20/98: use fullcolormap instead of colormaps
       // killough 11/98: use linesize
 
-      *dest = fullcolormap[6*256+dest[fuzzoffset[fuzzpos] ^ linesize]]; 
-
+      // fraggle 1/8/2000: fix with the bugfix from lees
+      // why_i_left_doom.html
+      
+      *dest = fullcolormap[6*256+dest[fuzzoffset[fuzzpos++] ^ linesize]];
       dest += linesize;             // killough 11/98
 
       // Clamp table lookup index.
@@ -696,8 +698,11 @@ void R_DrawViewBorder(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-08-11 23:09:44  fraggle
+// blur effect fix
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.16  1998/05/03  22:41:46  killough
 // beautification
