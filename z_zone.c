@@ -368,8 +368,11 @@ allocated:
   block->vm = 1;
 
 #ifdef INSTRUMENTED
-  virtual_memory += block->size = size + HEADER_SIZE;
+  // fraggle: cphs fix  
+  virtual_memory += size + HEADER_SIZE;
 #endif
+
+  block->size = size;
 
   goto allocated;
 }
@@ -485,9 +488,20 @@ void (Z_FreeTags)(int lowtag, int hightag, const char *file, int line)
   do               // Scan through list, searching for tags in range
     if (block->tag >= lowtag && block->tag <= hightag)
       {
-        memblock_t *prev = block->prev;
+        memblock_t *prev = block->prev, *cur = block;
         (Z_Free)((char *) block + HEADER_SIZE, file, line);
-        block = prev->next;
+
+	// fraggle: imported lxdoom bugfix
+	
+	/* cph - be more careful here, we were skipping blocks!
+	 * If the current block was not merged with the previous, 
+	 *  cur is still a valid pointer, prev->next == cur, and cur is 
+	 *  already free so skip to the next.
+	 * If the current block was merged with the previous, 
+	 *  the next block to analyse is prev->next.
+	 * Note that the while() below does the actual step forward 
+	 */
+        block = (prev->next == cur) ? cur : prev;
       }
   while ((block=block->next) != zone);
 
@@ -642,8 +656,11 @@ void (Z_CheckHeap)(const char *file, int line)
 //-----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:41  fraggle
-// Initial revision
+// Revision 1.2  2000-08-01 20:22:41  fraggle
+// bugfixes from lxdoom
+//
+// Revision 1.1.1.1  2000/07/29 13:20:41  fraggle
+// imported sources
 //
 // Revision 1.13  1998/05/12  06:11:55  killough
 // Improve memory-related error messages
