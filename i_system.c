@@ -30,6 +30,9 @@ extern void (*keyboard_lowlevel_callback)(int);  // should be in <allegro.h>
 #include <gppconio.h>
 #include <sys/nearptr.h>
 
+// fraggle 29/7/2000: keyboard.h: avoid name conflicts with allegro functions
+#include "keyboard.h"
+
 #include "i_system.h"
 #include "i_sound.h"
 #include "doomstat.h"
@@ -128,7 +131,7 @@ void I_ResetLEDs(void)
   //
   // killough 10/98: moved to here
 
-  set_leds(leds_always_off ? 0 : -1);
+  doom_set_leds(leds_always_off ? 0 : -1);
 }
 
 void I_Init(void)
@@ -161,9 +164,9 @@ void I_Init(void)
   // killough 3/21/98: Install handler to handle interrupt-driven keyboard IO
   LOCK_VARIABLE(keyboard_queue);
   LOCK_FUNCTION(keyboard_handler);
-  keyboard_lowlevel_callback = keyboard_handler;
+  doom_keyboard_lowlevel_callback = keyboard_handler;
 
-  install_keyboard();
+  doom_install_keyboard();
 
   // killough 3/6/98: save keyboard state, initialize shift state and LEDs:
 
@@ -273,8 +276,11 @@ void I_EndDoom(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 22:48:22  fraggle
+// fix for allegro v3.12
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.14  1998/05/03  22:33:13  killough
 // beautification

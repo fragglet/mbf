@@ -52,10 +52,13 @@ rcsid[] = "$Id$";
 
 extern int usejoystick;
 extern int joystickpresent;
-extern int joy_x,joy_y;
-extern int joy_b1,joy_b2,joy_b3,joy_b4;
 
-void poll_joystick(void);
+// fraggle: commented these out for allegro 3.12
+
+//extern int joy_x,joy_y;
+//extern int joy_b1,joy_b2,joy_b3,joy_b4;
+
+//void poll_joystick(void);
 
 // I_JoystickEvents() gathers joystick data and creates an event_t for
 // later processing by G_Responder().
@@ -444,15 +447,17 @@ static void I_InitGraphicsMode(void)
       if (hires)
         {
           if (page_flip)
-            if (set_gfx_mode(GFX_AUTODETECT, 640, 400, 640, 800))
-              {
-                warn_about_changes(S_BADVID);      // Revert to no pageflipping
-                page_flip = 0;
-              }
-            else
-              set_clip(screen, 0, 0, 640, 800);    // Allow full access
-
-          if (!page_flip && set_gfx_mode(GFX_AUTODETECT, 640, 400, 0, 0))
+	    {
+	      if (set_gfx_mode(GFX_AUTODETECT, 640, 400, 640, 800))
+		{
+		  warn_about_changes(S_BADVID);      // Revert to no pageflipping
+		  page_flip = 0;
+		}
+	      else
+		set_clip(screen, 0, 0, 640, 800);    // Allow full access
+	    }
+	  
+	  if (!page_flip && set_gfx_mode(GFX_AUTODETECT, 640, 400, 0, 0))
             {
               hires = 0;                           // Revert to lowres
               page_flip = in_page_flip;            // Restore orig pageflipping
@@ -599,8 +604,11 @@ void I_InitGraphics(void)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-07-29 22:48:23  fraggle
+// fix for allegro v3.12
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.12  1998/05/03  22:40:35  killough
 // beautification
