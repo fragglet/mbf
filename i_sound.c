@@ -52,6 +52,10 @@ static SAMPLE *raw2SAMPLE(unsigned char *rawdata, int len)
 {
   SAMPLE *spl = malloc(sizeof(SAMPLE));
   spl->bits = 8;
+
+  // comment out this line for allegro pre-v3.12
+  spl->stereo = 0;
+
   // killough 1/22/98: Get correct frequency
   spl->freq = (rawdata[3]<<8)+rawdata[2];
   spl->len = len;
@@ -429,8 +433,11 @@ int I_QrySongPlaying(int handle)
 //----------------------------------------------------------------------------
 //
 // $Log$
-// Revision 1.1  2000-07-29 13:20:39  fraggle
-// Initial revision
+// Revision 1.2  2000-08-01 20:23:05  fraggle
+// stereo fix for allegro v3.12
+//
+// Revision 1.1.1.1  2000/07/29 13:20:39  fraggle
+// imported sources
 //
 // Revision 1.15  1998/05/03  22:32:33  killough
 // beautification, use new headers/decls
